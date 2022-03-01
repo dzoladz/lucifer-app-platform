@@ -1,0 +1,50 @@
+# ----------------------------------------------------------------------
+# ❤️ Use Compose Spec: https://www.compose-spec.io/ ❤️
+#
+# This file builds a containerized instance of Portainer.
+# The image is pulled from the respective authorities on Docker Hub.
+# ----------------------------------------------------------------------
+
+#----------------------------------------------------
+# ESTABLISH GATEWAY FOR NETWORK TRAFFIC
+#----------------------------------------------------
+networks:
+  gateway:
+    external: true
+
+#----------------------------------------------------
+# USE DOCKER VOLUMES TO PERSIST DATA
+#----------------------------------------------------
+volumes:
+  portainer:
+    driver: local
+
+#----------------------------------------------------
+# PORTAINER SERVICE CONFIGURATION
+#----------------------------------------------------
+services:
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:2.11.1
+    restart: unless-stopped
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - portainer:/data
+    labels:
+    #--------------------------------------------------------------------#
+    # Define the behavior and rules of Portainer w/ Traefik              #
+    #--------------------------------------------------------------------#
+      # ENABLE TRAEFIK SERVICE and SET THE PORT *****************************************
+      - "traefik.enable=true" # Enable traefik on this container
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000" # Define container connection port
+      # HTTP CONFIGURATION ***************************************************************
+      - "traefik.http.routers.portainer.entrypoints=http" # Enable HTTP entrypoint for [portainer]
+      - "traefik.http.routers.portainer.rule=Host(`portainer.derekzoladz.com`)" # Define HTTP host
+      # HTTPS CONFIGURATION ***************************************************************
+      - "traefik.http.routers.portainer.middlewares=redirect@file" # Enforce HTTPS redirect
+      - "traefik.http.routers.portainer-ssl.entrypoints=https" # Enable HTTPS entrypoint for [portainer-ssl]
+      - "traefik.http.routers.portainer-ssl.rule=Host(`portainer.derekzoladz.com`)" # Define HTTPS host
+      - "traefik.http.routers.portainer-ssl.tls=true" # Enable SSL/TLS for [portainer-ssl]
+      ### - "traefik.http.routers.portainer-ssl.tls.certresolver=letsencrypt" # Use Let's Encrypt
+    networks:
+      - gateway

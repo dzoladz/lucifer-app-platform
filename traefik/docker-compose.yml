@@ -1,0 +1,73 @@
+# -------------------------------------------------------------------------------------------------------------
+# ❤️ Use Compose Spec: https://www.compose-spec.io/ ❤️
+#
+# This file builds a containerized instance of Traefik. The image is pulled from the respective authorities
+# on Docker Hub.
+# -------------------------------------------------------------------------------------------------------------
+
+#----------------------------------------------------
+# ESTABLISH GATEWAY FOR NETWORK TRAFFIC TRAEFIK
+#----------------------------------------------------
+
+networks:
+  gateway:
+    external: true
+
+#----------------------------------------------------
+# TRAEFIK SERVICE CONFIGURATION
+#----------------------------------------------------
+services:
+  traefik:
+    image: traefik:v2.6.0
+    container_name: traefik
+    ports:
+      - "80:80"
+      - "443:443"
+    command:
+      #------------------------------------------------------#
+      # API Settings - https://docs.traefik.io/operations/api/
+      #------------------------------------------------------#
+      ##- --api.insecure=true # ONLY FOR DEV ENVIRONMENT!
+      - --api.dashboard=true # Enable dashboard
+      - --api.debug=true # Enable debugging and profiling
+      - --log.level=DEBUG # Set log level
+      #------------------------------------------------------------------------------------#
+      # Provider Settings - https://docs.traefik.io/providers/docker/#provider-configuration
+      #------------------------------------------------------------------------------------#
+      - --providers.docker=true # Enable docker provider
+      - --providers.docker.exposedbydefault=false # Don't expose all containers, only enabled ones
+      - --providers.file.filename=/dynamic.yml # Dynamic configuration file
+      - --providers.docker.network=gateway # Default docker network to use for connections to all containers
+      #------------------------------------------------------------------------------------#
+      # Entrypoints Settings - https://docs.traefik.io/routing/entrypoints/#configuration
+      #------------------------------------------------------------------------------------#
+      - --entrypoints.http.address=:80 # Name entrypoint for port 80 as http
+      - --entrypoints.https.address=:443 # Name entrypoint for port 443 as https
+      #------------------------------------------------------------------------------------#
+      # Certificate Settings -  https://docs.traefik.io/https/acme/#configuration-examples
+      #------------------------------------------------------------------------------------#
+      ### - --certificatesResolvers.letsencrypt.acme.dnsChallenge=true # Enable DNS challenges
+      ### - --certificatesresolvers.letsencrypt.acme.dnsChallenge.provider=gcloud # Enable DNS-01, ACME client, gcloud DNS provider
+      ### - --certificatesresolvers.letsencrypt.acme.email=serveradmin@ohionet.org # Email for certs
+      ### - --certificatesResolvers.letsencrypt.acme.dnsChallenge.delayBeforeCheck=0 # Use Delay?
+      ### - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json # Define certificate store
+      ### - --certificatesresolvers.letsencrypt.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory # STAGING SERVER. Comment out for production, rate limits apply
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro" # Read-only Socket
+      - ./letsencrypt:/letsencrypt # Certificates in acme.json
+      - ./certs:/certs # Manually generated certificates
+      - ./dynamic.yml:/dynamic.yml # Middleware definitions (Auth, HTTPS Redirect) Refs: providers.file.filename
+      ### - ./.google-dns-credentials.json:/google-dns-credentials.json:ro # gcloud service account for Let's Encrypt DNS-01
+    labels:
+    #--------------------------------------------------------------------#
+    # Traefik uses labels to define the behavior and rules of containers #
+    #--------------------------------------------------------------------#
+      - "traefik.enable=true" # Enable traefik on this container
+      - "traefik.http.routers.api.service=api@internal" # Enable traefik api service
+      - "traefik.http.routers.api.entrypoints=https" # Enable HTTP entrypoint for [api]
+      - "traefik.http.routers.api.rule=Host(`traefik.derekzoladz.com`)" # Define HTTP host
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.api.middlewares=auth@file" # Enable authentication. admin:encrypted_password
+    restart: always
+    networks:
+      - gateway

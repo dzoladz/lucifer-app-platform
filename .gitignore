@@ -1,0 +1,22 @@
+.bash_history
+.bash_logout
+.bashrc
+.cache/
+.idea/
+.profile
+.ssh/
+.sudo_as_admin_successful
+.vim/
+.viminfo
+.wget-hsts
+.gitconfig
+.git-credentials
+.DS_Store
+.aws
+.env
+.ini
+
+# ignore certificate files owned by root
+traefik/letsencrypt/*
+*.crt
+*.key

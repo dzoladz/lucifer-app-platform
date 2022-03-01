@@ -1,0 +1,28 @@
+# -----------------------------------------------------------------------------
+# Middlewares
+# -----------------------------------------------------------------------------
+# redirect  - for Redirect to HTTPS
+# auth      - for Basic Authentication
+# -----------------------------------------------------------------------------
+
+http:
+  middlewares:
+    redirect:
+      redirectScheme:
+        scheme: https
+    auth:
+      basicAuth:
+        users:
+          - "admin:$apr1$rUVOS6P4$RCVSuqu7wgyBVoQuAtBNc."
+
+# ------------------------------------------------------------------------------
+# TLS Certificates
+# self-signed certificates; otherwise, use letsencrypt
+# ------------------------------------------------------------------------------
+
+tls:
+  certificates:
+    - certFile: /certs/traefik.crt
+      keyFile: /certs/traefik.key
+    - certFile: /certs/portainer.crt
+      keyFile: /certs/portainer.key
