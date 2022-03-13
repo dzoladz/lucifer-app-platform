@@ -20,3 +20,4 @@
 traefik/letsencrypt/*
 *.crt
 *.key
+*.ext
