@@ -21,3 +21,9 @@ traefik/letsencrypt/*
 *.crt
 *.key
 *.ext
+
+#VS Code
+.vscode/
+
+#apps
+shelfreader/

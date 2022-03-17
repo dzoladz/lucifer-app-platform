@@ -23,6 +23,8 @@ http:
 tls:
   certificates:
     - certFile: /certs/traefik.crt
-      keyFile: /certs/traefik.key
-            #- certFile: /certs/portainer.crt
-            #keyFile: /certs/portainer.key
+      keyFile: /certs/private.key
+    - certFile: /certs/portainer.crt
+      keyFile: /certs/private.key
+    - certFile: /certs/shelfreader.crt
+      keyFile: /certs/private.key
