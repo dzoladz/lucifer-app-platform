@@ -1,0 +1,70 @@
+# ----------------------------------------------------------------------
+#
+# ❤️ Use Compose Spec: https://www.compose-spec.io/ ❤️
+#
+# ----------------------------------------------------------------------
+
+#----------------------------------------------------
+# ESTABLISH GATEWAY FOR NETWORK TRAFFIC
+#----------------------------------------------------
+networks:
+  gateway:
+    external: true
+    driver: bridge
+  grafana:
+    external: false
+
+#----------------------------------------------------
+# USE DOCKER VOLUMES TO PERSIST DATA
+#----------------------------------------------------
+volumes:
+  grafana-data:
+    driver: local
+
+#----------------------------------------------------
+# GRAFANA SERVICE CONFIGURATION
+#----------------------------------------------------
+services:
+  grafana-app:
+    image: dzoladz/grafana:latest
+    build:
+      context: app
+      dockerfile: Dockerfile
+    container_name: grafana-app
+    restart: unless-stopped
+    #ports:
+    #  - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    labels:
+      #--------------------------------------------------------------------#
+      # Define the behavior and rules of Grafana w/ Traefik                #
+      #--------------------------------------------------------------------#
+      # ENABLE TRAEFIK SERVICE and SET THE PORT *****************************************
+      - "traefik.enable=true" # Enable traefik on this container
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000" # Define container connection port
+      # HTTP CONFIGURATION ***************************************************************
+      - "traefik.http.routers.grafana.entrypoints=http" # Enable HTTP entrypoint for [grafana]
+      - "traefik.http.routers.grafana.rule=Host(`grafana.derekzoladz.com`)" # Define HTTP host
+      # HTTPS CONFIGURATION ***************************************************************
+      - "traefik.http.routers.grafana.middlewares=redirect@file" # Enforce HTTPS redirect
+      - "traefik.http.routers.grafana-ssl.entrypoints=https" # Enable HTTPS entrypoint for [grafana-ssl]
+      - "traefik.http.routers.grafana-ssl.rule=Host(`grafana.derekzoladz.com`)" # Define HTTPS host
+      - "traefik.http.routers.grafana-ssl.tls=true" # Enable SSL/TLS for [grafana-ssl]
+      ### - "traefik.http.routers.grafana-ssl.tls.certresolver=letsencrypt" # Use Let's Encrypt
+    networks:
+      - gateway
+      - grafana
+
+  grafana-db:
+    image: mariadb
+    container_name: grafana-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./db/data:/docker-entrypoint-initdb.d
+    #ports:
+    #  - "3306:3306"
+    networks:
+      - grafana
