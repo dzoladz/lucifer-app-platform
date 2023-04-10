@@ -1,10 +1,9 @@
 # ----------------------------------------------------------------------
+#
 # ❤️ Use Compose Spec: https://www.compose-spec.io/ ❤️
 #
-# This file builds a containerized instance of Portainer.
-# The image is pulled from the respective authorities on Docker Hub.
 # ----------------------------------------------------------------------
-version: "3"
+
 #----------------------------------------------------
 # ESTABLISH GATEWAY FOR NETWORK TRAFFIC
 #----------------------------------------------------
