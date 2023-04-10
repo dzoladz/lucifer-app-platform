@@ -1,10 +1,9 @@
 # -------------------------------------------------------------------------------------------------------------
+#
 # ❤️ Use Compose Spec: https://www.compose-spec.io/ ❤️
 #
-# This file builds a containerized instance of Traefik. The image is pulled from the respective authorities
-# on Docker Hub.
 # -------------------------------------------------------------------------------------------------------------
-version: "3"
+
 #----------------------------------------------------
 # ESTABLISH GATEWAY FOR NETWORK TRAFFIC TRAEFIK
 #----------------------------------------------------
@@ -68,6 +67,6 @@ services:
       - "traefik.http.routers.api.rule=Host(`traefik.derekzoladz.com`)" # Define HTTP host
       - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.middlewares=auth@file" # Enable authentication. admin:encrypted_password
-    restart: always
+    restart: unless-stopped
     networks:
       - gateway
