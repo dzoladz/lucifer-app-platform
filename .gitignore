@@ -21,9 +21,7 @@ traefik/letsencrypt/*
 *.crt
 *.key
 *.ext
+*.pem
 
 #VS Code
 .vscode/
-
-#apps
-shelfreader/
