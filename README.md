@@ -14,6 +14,7 @@ orchestrated by Docker Compose.
 
 ## Running a Certificate Authority
 * [Set up a CA on macOS](traefik/certs/README.md)
+* But, it's much easier to [use mkcert](traefik/certs/README-mkcert.md) for development
 
 ## Traefik
 To make basic authentication credentials for access to the dashboard,
@@ -23,3 +24,12 @@ To make basic authentication credentials for access to the dashboard,
   users:
     - "admin:$apr1$rUVOS6P4$RCVSuqu7wgyBVoQuAtBNc."
   ```
+
+## Update Hosts File
+Update local hosts file (e.g. /etc/hosts on macOS). At the moment, these hosts
+are hardcoded.
+
+```bash
+127.0.0.1	portainer.derekzoladz.com
+127.0.0.1	traefik.derekzoladz.com
+```
