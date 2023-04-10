@@ -24,6 +24,6 @@ docker-compose -f docker-compose.yml up -d
 # order doesn't matter... connecting to the gateway network
 # ----------------------------------------------------------
 
-# Build Weeding Helper
-# cd ${DIR_PATH}/weeding-helper/docker
-# docker-compose -f docker-compose.yml up -d
+# Build Grafana
+cd ${DIR_PATH}/grafana
+docker-compose -f docker-compose.yml up -d
