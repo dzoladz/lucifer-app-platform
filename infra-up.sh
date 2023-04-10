@@ -19,10 +19,6 @@ docker-compose -f docker-compose.yml up -d
 cd ${DIR_PATH}/portainer
 docker-compose -f docker-compose.yml up -d
 
-# Build Shelfreader
-cd ${DIR_PATH}/shelfreader/docker
-docker-compose -f docker-compose.yml up -d
-
 # ----------------------------------------------------------
 # HOSTED APPLICATIONS
 # order doesn't matter... connecting to the gateway network
